@@ -186,7 +186,7 @@ class MotionKey {
         when (this.prevSlopeMethod) {
             SlopeMethod.SLOPE_MANUAL -> {
                 m_prevTangent.set(cos(this.prevAngleAndMagnitude.x), sin(this.prevAngleAndMagnitude.x))
-                if (this.prevKey != null)  // TODO: result is unused
+                if (this.prevKey != null)
                     m_prevTangent.times(this.timeAndValue.x - prevKey!!.timeAndValue.x)
             }
 

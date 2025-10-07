@@ -9,13 +9,10 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import edu.wpi.first.wpilibj2.command.Commands
 import frc.team2471.bunnyBots2025_Minibot.util.control.LoopLogger
 import frc.team2471.bunnyBots2025_Minibot.util.RobotMode
 import frc.team2471.bunnyBots2025_Minibot.util.ctre.loggedTalonFX.MasterMotor
-import frc.team2471.bunnyBots2025_Minibot.util.isSim
 import frc.team2471.bunnyBots2025_Minibot.util.robotMode
-import frc.team2471.bunnyBots2025_Minibot.util.units.asFeet
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -37,7 +34,6 @@ import kotlin.collections.iterator
  */
 @OptIn(DelicateCoroutinesApi::class)
 object Robot : LoggedRobot() {
-    val isCompBot = getCompBotBoolean()
     private var wasDisabled = true
     var beforeFirstEnable = true
         private set
@@ -67,12 +63,12 @@ object Robot : LoggedRobot() {
 
     // Subsystems:
     // MUST define an individual variable for all subsystems inside this class or else @AutoLogOutput will not work -2025
-//    val drive = Drive
+    val drive = Drive
     val oi = OI
     val intake = Intake
     val vision = Vision
 
-    var allSubsystems = arrayOf(/*drive,*/ oi, intake, vision)
+    var allSubsystems = arrayOf(drive, oi, intake, vision)
 
     init {
         // Tells FRC we use Kotlin
