@@ -1,6 +1,5 @@
 package motion_profiling;
 
-import com.google.gson.Gson;
 import frc.team2471.bunnyBots2025_Minibot.util.motion_profiling.BooleanPair;
 import frc.team2471.bunnyBots2025_Minibot.util.motion_profiling.MotionKey;
 
@@ -669,10 +668,6 @@ public class MotionCurve {
         this.m_markBeginOrEndKeysToZeroSlope = setBeginOrEndKeysToZeroSlope;
     }
 
-    public static MotionCurve fromJsonString(String json) {
-        MotionCurve curve = new Gson().fromJson(json, MotionCurve.class);
-        return hydrateCurve(curve);
-    }
 
     public static MotionCurve hydrateCurve(MotionCurve curve) {
         if (curve != null) {
