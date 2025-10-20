@@ -1,7 +1,7 @@
 package frc.team2471.bunnyBots2025_Minibot
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.team2471.bunnyBots2025_Minibot.util.vision.limelight.VisionIO
+import org.team2471.frc.lib.vision.limelight.VisionIO
 
 // Single limelight 3g
 object Vision : SubsystemBase() {

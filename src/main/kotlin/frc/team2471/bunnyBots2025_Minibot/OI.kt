@@ -1,15 +1,13 @@
 package frc.team2471.bunnyBots2025_Minibot
 
 import edu.wpi.first.math.filter.Debouncer
-import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.team2471.bunnyBots2025_Minibot.util.control.LoopLogger
-import frc.team2471.bunnyBots2025_Minibot.util.control.MeanCommandXboxController
-import frc.team2471.bunnyBots2025_Minibot.util.control.commands.toCommand
-import frc.team2471.bunnyBots2025_Minibot.util.math.deadband
-import frc.team2471.bunnyBots2025_Minibot.util.math.normalize
+import org.team2471.frc.lib.control.LoopLogger
+import org.team2471.frc.lib.control.MeanCommandXboxController
+import org.team2471.frc.lib.math.deadband
+import org.team2471.frc.lib.math.normalize
 
 object OI: SubsystemBase("OI") {
     val driverController = MeanCommandXboxController(0, false)

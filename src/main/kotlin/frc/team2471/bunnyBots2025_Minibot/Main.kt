@@ -9,10 +9,6 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import frc.team2471.bunnyBots2025_Minibot.util.control.LoopLogger
-import frc.team2471.bunnyBots2025_Minibot.util.RobotMode
-import frc.team2471.bunnyBots2025_Minibot.util.ctre.loggedTalonFX.MasterMotor
-import frc.team2471.bunnyBots2025_Minibot.util.robotMode
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -23,6 +19,10 @@ import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.NT4Publisher
 import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
+import org.team2471.frc.lib.RobotMode
+import org.team2471.frc.lib.control.LoopLogger
+import org.team2471.frc.lib.ctre.loggedTalonFX.MasterMotor
+import org.team2471.frc.lib.robotMode
 import java.net.NetworkInterface
 import kotlin.collections.iterator
 

@@ -1,13 +1,11 @@
 package frc.team2471.bunnyBots2025_Minibot
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.configs.TalonFXConfigurator
 import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.team2471.bunnyBots2025_Minibot.util.ctre.applyConfiguration
-import frc.team2471.bunnyBots2025_Minibot.util.ctre.brakeMode
-import frc.team2471.bunnyBots2025_Minibot.util.ctre.currentLimits
-import frc.team2471.bunnyBots2025_Minibot.util.ctre.inverted
+import org.team2471.frc.lib.ctre.applyConfiguration
+import org.team2471.frc.lib.ctre.brakeMode
+import org.team2471.frc.lib.ctre.currentLimits
+import org.team2471.frc.lib.ctre.inverted
 
 object Drive: SubsystemBase("Drive") {
     val leftMotor = TalonFX(Falcons.LEFT_DRIVE)
