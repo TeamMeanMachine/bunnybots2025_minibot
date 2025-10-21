@@ -9,6 +9,8 @@ object AnalogSensors {
 }
 
 object DigitalSensors {
+    const val LOWER_BEAMBREAK = 0
+    const val UPPER_BEAMBREAK = 0
 }
 
 object Falcons {
@@ -36,8 +38,6 @@ object CANivores {
 }
 
 object CANSensors {
-    const val LOWER_CAN_RANGE = 0
-    const val UPPER_CAN_RANGE = 0
 }
 
 object I2CPort {

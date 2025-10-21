@@ -6,6 +6,7 @@ import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.brakeMode
 import org.team2471.frc.lib.ctre.currentLimits
 import org.team2471.frc.lib.ctre.inverted
+import kotlin.math.abs
 
 object Drive: SubsystemBase("Drive") {
     val leftMotor = TalonFX(Falcons.LEFT_DRIVE)
@@ -32,8 +33,10 @@ object Drive: SubsystemBase("Drive") {
         val forwardStick = -OI.driverController.leftY
         val steerStick = OI.driverController.rightX
 
-        val leftPower = forwardStick + steerStick
-        val rightPower = forwardStick - steerStick
+        val turn = if (abs(forwardStick) > 0.1) abs(forwardStick) * steerStick else steerStick
+
+        val leftPower = forwardStick + turn
+        val rightPower = forwardStick - turn
 
         leftMotor.setVoltage(leftPower * 12.0)
         rightMotor.setVoltage(rightPower * 12.0)
