@@ -6,6 +6,7 @@ import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.brakeMode
 import org.team2471.frc.lib.ctre.currentLimits
 import org.team2471.frc.lib.ctre.inverted
+import org.team2471.frc.lib.math.deadband
 import kotlin.math.abs
 
 object Drive: SubsystemBase("Drive") {
@@ -15,12 +16,12 @@ object Drive: SubsystemBase("Drive") {
     init {
         leftMotor.applyConfiguration {
             currentLimits(30.0, 40.0, 1.0)
-            inverted(false)
+            inverted(true)
             brakeMode()
         }
         rightMotor.applyConfiguration {
             currentLimits(30.0, 40.0, 1.0)
-            inverted(true)
+            inverted(false)
             brakeMode()
         }
     }
@@ -30,8 +31,8 @@ object Drive: SubsystemBase("Drive") {
     }
 
     fun joystickDrive() {
-        val forwardStick = -OI.driverController.leftY
-        val steerStick = OI.driverController.rightX
+        val forwardStick = -OI.driverController.leftY.deadband(0.1)
+        val steerStick = OI.driverController.rightX.deadband(0.1)
 
         val turn = if (abs(forwardStick) > 0.1) abs(forwardStick) * steerStick else steerStick
 

@@ -10,19 +10,19 @@ object AnalogSensors {
 
 object DigitalSensors {
     const val LOWER_BEAMBREAK = 0
-    const val UPPER_BEAMBREAK = 0
+    const val UPPER_BEAMBREAK = 1
 }
 
 object Falcons {
-    const val LEFT_DRIVE = 0
-    const val RIGHT_DRIVE = 0
-    const val SHOOTER = 0
-    const val INTAKE_SIDES = 0
+    const val LEFT_DRIVE = 19
+    const val RIGHT_DRIVE = 24
+    const val SHOOTER = 31
+    const val INTAKE_SIDES = 13
 }
 
 object Talons {
-    const val INTAKE_TOP = 0
-    const val UPTAKE = 0
+    const val INTAKE_TOP = 14
+    const val UPTAKE = 17
 }
 
 object CANCoders {
