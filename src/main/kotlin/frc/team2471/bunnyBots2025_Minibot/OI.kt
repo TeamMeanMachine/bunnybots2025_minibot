@@ -76,6 +76,11 @@ object OI: SubsystemBase("OI") {
         println("inside OI init")
         // Default command, normal field-relative drive
 //        Drive.defaultCommand = Drive.joystickDrive()
+
+        driverController.x().onTrue(runOnce { Intake.currentIntakeState = Intake.IntakeState.INTAKING })
+        driverController.y().onTrue(runOnce { Intake.currentIntakeState = Intake.IntakeState.REVERSING })
+        driverController.a().whileTrue(runOnce { Shooter.shoot() })
+        driverController.b().onTrue(runOnce { Intake.currentIntakeState = Intake.IntakeState.HOLDING })
     }
 
     override fun periodic() {
