@@ -18,11 +18,17 @@ object Drive: SubsystemBase("Drive") {
             currentLimits(30.0, 40.0, 1.0)
             inverted(true)
             brakeMode()
+            this.OpenLoopRamps.apply {
+                DutyCycleOpenLoopRampPeriod = 1.0
+            }
         }
         rightMotor.applyConfiguration {
             currentLimits(30.0, 40.0, 1.0)
             inverted(false)
             brakeMode()
+            this.OpenLoopRamps.apply {
+                DutyCycleOpenLoopRampPeriod = 1.0
+            }
         }
     }
 

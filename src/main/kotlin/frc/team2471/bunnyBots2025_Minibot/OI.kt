@@ -78,8 +78,8 @@ object OI: SubsystemBase("OI") {
 //        Drive.defaultCommand = Drive.joystickDrive()
 
         driverController.x().onTrue(runOnce { Intake.currentIntakeState = Intake.IntakeState.INTAKING })
-        driverController.y().onTrue(runOnce { Intake.currentIntakeState = Intake.IntakeState.REVERSING })
-        driverController.a().whileTrue(runOnce { Shooter.shoot() })
+        driverController.y().whileTrue(spit())
+        driverController.a().whileTrue(Shooter.shoot())
         driverController.b().onTrue(runOnce { Intake.currentIntakeState = Intake.IntakeState.HOLDING })
     }
 

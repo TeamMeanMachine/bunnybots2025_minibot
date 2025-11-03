@@ -145,12 +145,17 @@ object Robot : LoggedRobot() {
         println("Enabled init $timeSinceEnabled")
 //        Drive.brakeMode()
         Vision.onEnable()
+
+        Intake.indexerMotor.brakeMode()
+        Intake.sidesIntakeMotor.brakeMode()
     }
 
     /** This function is called once when the robot is disabled.  */
     override fun disabledInit() {
 //        Drive.coastMode()
         Vision.onDisable()
+        Intake.indexerMotor.coastMode()
+        Intake.sidesIntakeMotor.coastMode()
     }
 
     /** This function is called periodically when disabled.  */
