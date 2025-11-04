@@ -7,12 +7,12 @@ import org.team2471.frc.lib.control.commands.runCommand
 
 fun spit(): Command {
     return runCommand {
-        if (Intake.currentIntakeState != Intake.IntakeState.SHOOTING) {
-            Intake.currentIntakeState = Intake.IntakeState.REVERSING
+        if (Intake.currentState != Intake.State.SHOOTING) {
+            Intake.currentState = Intake.State.REVERSING
             Shooter.motor.setControl(VelocityVoltage(Shooter.spittingVelocity))
         }
     }.finallyRun {
-        Intake.currentIntakeState = Intake.IntakeState.HOLDING
+        Intake.currentState = Intake.State.HOLDING
         Shooter.motor.setControl(VelocityVoltage(0.0))
     }
 }

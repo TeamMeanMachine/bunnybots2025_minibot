@@ -1,20 +1,21 @@
 package frc.team2471.bunnyBots2025_Minibot
 
-import com.ctre.phoenix6.controls.DutyCycleOut
 import com.ctre.phoenix6.controls.VelocityVoltage
+import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.team2471.frc.lib.control.commands.finallyRun
 import org.team2471.frc.lib.control.commands.runCommand
-import org.team2471.frc.lib.control.commands.sequenceCommand
 import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.coastMode
 import org.team2471.frc.lib.ctre.currentLimits
 import org.team2471.frc.lib.ctre.inverted
 import org.team2471.frc.lib.ctre.p
+import org.team2471.frc.lib.ctre.s
 import org.team2471.frc.lib.ctre.v
 import kotlin.math.absoluteValue
 
@@ -28,7 +29,7 @@ object Shooter: SubsystemBase("Shooter") {
     const val SHOOT_ERROR_THRESHOLD = 3.0
 
     val shootingVelocity get() = shootingVelocityEntry.getDouble(27.0)
-    val spittingVelocity get() = shootingVelocityEntry.getDouble(-10.0)
+    val spittingVelocity get() = spittingVelocityEntry.getDouble(-10.0)
 
     val motor = TalonFX(Falcons.SHOOTER)
 
@@ -45,8 +46,9 @@ object Shooter: SubsystemBase("Shooter") {
             inverted(true)
             coastMode()
 
-            p(0.1)
+            p(0.3)
             v(0.12)
+            s(0.17, StaticFeedforwardSignValue.UseVelocitySign)
         }
     }
 
@@ -64,11 +66,11 @@ object Shooter: SubsystemBase("Shooter") {
                     println("shooting at ${motor.velocity.valueAsDouble} rps")
                     hasStartedShooting = false
                 }
-                Intake.currentIntakeState = Intake.IntakeState.SHOOTING
+                Intake.currentState = Intake.State.SHOOTING
             }
         }.finallyRun {
-            Intake.currentIntakeState = Intake.IntakeState.HOLDING
-            motor.setControl(VelocityVoltage(0.0))
+            Intake.currentState = Intake.State.HOLDING
+            motor.setControl(VoltageOut(0.0))
         }
 
     }}

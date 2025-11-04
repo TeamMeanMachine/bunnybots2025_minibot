@@ -2,15 +2,13 @@ package frc.team2471.bunnyBots2025_Minibot
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode
 import com.ctre.phoenix.motorcontrol.can.TalonSRX
-import com.ctre.phoenix6.controls.DutyCycleOut
 import com.ctre.phoenix6.controls.VoltageOut
+import edu.wpi.first.math.filter.Debouncer
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DigitalInput
-import org.littletonrobotics.junction.Logger
+import org.littletonrobotics.junction.AutoLogOutput
 import org.team2471.frc.lib.ctre.applyConfiguration
-import org.team2471.frc.lib.ctre.brakeMode
 import org.team2471.frc.lib.ctre.coastMode
 import org.team2471.frc.lib.ctre.currentLimits
 import org.team2471.frc.lib.ctre.inverted
@@ -24,9 +22,6 @@ object Intake: SubsystemBase("Intake") {
    private val indexingPercentEntry = table.getEntry("Indexing Percentage")
    private val indexerMotorShootingPercentEntry = table.getEntry("Index Motor Shooting Percentage")
 
-   private val upperBeambreakEntry = table.getEntry("Upper Beambreak Entry")
-   private val lowerBeambreakEntry = table.getEntry("Lower Beambreak Entry")
-
    val upperIntakeMotor = TalonSRX(Talons.INTAKE_TOP)
    val sidesIntakeMotor = LoggedTalonFX(Falcons.INTAKE_SIDES)
    val indexerMotor = LoggedTalonFX(Talons.UPTAKE)
@@ -34,7 +29,11 @@ object Intake: SubsystemBase("Intake") {
    val lowerBeambreakSensor = DigitalInput(DigitalSensors.LOWER_BEAMBREAK)
    val upperBeambreakSensor = DigitalInput(DigitalSensors.UPPER_BEAMBREAK)
 
-   val lowerBeambreak: Boolean get() = !lowerBeambreakSensor.get()
+   val lowerBeambreakDebouncer = Debouncer(0.05, Debouncer.DebounceType.kFalling)
+
+   @get:AutoLogOutput(key = "Intake/Lower Beambreak")
+   val lowerBeambreak: Boolean get() = lowerBeambreakDebouncer.calculate(!lowerBeambreakSensor.get())
+   @get:AutoLogOutput(key = "Intake/Upper Beambreak")
    val upperBeambreak: Boolean get() = !upperBeambreakSensor.get()
 
    val upperIntakingPercentage: Double get() = upperIntakingPercentEntry.getDouble(0.7) // 70%
@@ -42,7 +41,8 @@ object Intake: SubsystemBase("Intake") {
    val indexingPercentage: Double get() = indexingPercentEntry.getDouble(0.5)
    val indexerMotorShootingPercentage: Double get() = indexerMotorShootingPercentEntry.getDouble(0.7)
 
-   var currentIntakeState = IntakeState.HOLDING
+   @get:AutoLogOutput(key = "Intake/Current State")
+   var currentState = State.HOLDING
 
    init {
       if (!upperIntakingPercentEntry.exists()) {
@@ -79,57 +79,46 @@ object Intake: SubsystemBase("Intake") {
    }
 
    override fun periodic() {
-      when (currentIntakeState) {
-         IntakeState.INTAKING -> {
+      when (currentState) {
+         State.INTAKING -> {
             // switch to holding if full
-            if (upperBeambreak) currentIntakeState = IntakeState.HOLDING
+            if (upperBeambreak) currentState = State.HOLDING
             // switch to indexing when carrot passes first beambreak
-            if (lowerBeambreak) currentIntakeState = IntakeState.SHIFTING
+            if (lowerBeambreak) currentState = State.SHIFTING
 
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, upperIntakingPercentage)
             sidesIntakeMotor.setControl(VoltageOut(sideIntakingPercentage * 12.0))
-
-//            if (upperBeambreak) {
-//               indexerMotor.setControl(VoltageOut(0.0))
-//            } else {
-//               indexerMotor.setControl(VoltageOut(indexingPercentage * 12.0))
-//            }
          }
 
-         IntakeState.SHIFTING -> {
+         State.SHIFTING -> {
             // switch to holding if full or piece in indexer
-            if (upperBeambreak || !lowerBeambreak) currentIntakeState = IntakeState.HOLDING
+            if (upperBeambreak || !lowerBeambreak) currentState = State.HOLDING
 
             sidesIntakeMotor.setControl(VoltageOut(sideIntakingPercentage * 12.0))
             indexerMotor.setControl(VoltageOut(indexingPercentage * 12.0))
          }
 
-         IntakeState.HOLDING -> {
+         State.HOLDING -> {
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, 0.0)
             sidesIntakeMotor.setControl(VoltageOut(0.0))
             indexerMotor.setControl(VoltageOut(0.0))
          }
 
-         IntakeState.SHOOTING -> {
+         State.SHOOTING -> {
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, upperIntakingPercentage)
             sidesIntakeMotor.setControl(VoltageOut(sideIntakingPercentage * 12.0))
             indexerMotor.setControl(VoltageOut(indexerMotorShootingPercentage * 12.0))
          }
 
-         IntakeState.REVERSING -> {
+         State.REVERSING -> {
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, -upperIntakingPercentage)
             sidesIntakeMotor.setControl(VoltageOut(-sideIntakingPercentage * 12.0))
             indexerMotor.setControl(VoltageOut(-indexingPercentage * 12.0))
          }
       }
-
-      Logger.recordOutput("Intake state", currentIntakeState.name)
-
-      upperBeambreakEntry.setBoolean(upperBeambreak)
-      lowerBeambreakEntry.setBoolean(lowerBeambreak)
    }
 
-   enum class IntakeState {
+   enum class State {
       INTAKING,
       SHIFTING,
       HOLDING,
