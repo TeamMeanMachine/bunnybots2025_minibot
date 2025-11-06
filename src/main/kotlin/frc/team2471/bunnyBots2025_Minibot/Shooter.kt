@@ -49,6 +49,12 @@ object Shooter: SubsystemBase("Shooter") {
             p(0.3)
             v(0.12)
             s(0.17, StaticFeedforwardSignValue.UseVelocitySign)
+
+//            p(5.0)
+////            d(0.5)
+//            i(5.0)
+////            v(0.4)
+//            s(9.0, StaticFeedforwardSignValue.UseVelocitySign)
         }
     }
 
