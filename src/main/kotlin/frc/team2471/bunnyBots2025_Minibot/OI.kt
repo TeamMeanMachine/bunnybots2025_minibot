@@ -83,7 +83,8 @@ object OI: SubsystemBase("OI") {
         driverController.b().onTrue(runOnce { Intake.currentState = Intake.State.HOLDING })
     }
 
-    override fun periodic() {
+    override fun periodic()
+    {
         LoopLogger.record("b4 OI piodc")
         driverNotConnectedAlert.set(driverDebouncer.calculate(driverController.isConnected))
         operatorNotConnectedAlert.set(operatorDebouncer.calculate(operatorController.isConnected))
