@@ -13,6 +13,7 @@ import org.team2471.frc.lib.control.commands.runCommand
 import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.coastMode
 import org.team2471.frc.lib.ctre.currentLimits
+import org.team2471.frc.lib.ctre.d
 import org.team2471.frc.lib.ctre.inverted
 import org.team2471.frc.lib.ctre.p
 import org.team2471.frc.lib.ctre.s
@@ -26,9 +27,11 @@ object Shooter: SubsystemBase("Shooter") {
     private val shootingVelocityEntry = table.getEntry("Shooting Velocity")
     private val spittingVelocityEntry = table.getEntry("Spitting Velocity")
 
-    const val SHOOT_ERROR_THRESHOLD = 3.0
+    const val SHOOT_ERROR_THRESHOLD = 5.0
+    var withinShootErrorFrames = 0
+    val reverseFrameAmount = 5
 
-    val shootingVelocity get() = shootingVelocityEntry.getDouble(27.0)
+    val shootingVelocity get() = shootingVelocityEntry.getDouble(32.0)
     val spittingVelocity get() = spittingVelocityEntry.getDouble(-10.0)
 
     val motor = TalonFX(Falcons.SHOOTER)
@@ -46,7 +49,8 @@ object Shooter: SubsystemBase("Shooter") {
             inverted(true)
             coastMode()
 
-            p(0.3)
+            p(0.25)
+            d(0.005)
             v(0.12)
             s(0.17, StaticFeedforwardSignValue.UseVelocitySign)
 
@@ -64,10 +68,20 @@ object Shooter: SubsystemBase("Shooter") {
 
     fun shoot(): Command {
         var hasStartedShooting = false
+        var reverseFrames = 0
         return runCommand {
+            if (reverseFrames < reverseFrameAmount) {
+                Intake.currentState = Intake.State.INDEXERREVERSING
+                reverseFrames++
+            } else if (reverseFrames == reverseFrameAmount) {
+                Intake.currentState = Intake.State.HOLDING
+                reverseFrames++
+            }
             motor.setControl(VelocityVoltage(shootingVelocity))
             hasStartedShooting = false
-            if ((shootingVelocity - motor.velocity.valueAsDouble).absoluteValue < SHOOT_ERROR_THRESHOLD) {
+            if ((shootingVelocity - motor.velocity.valueAsDouble).absoluteValue < SHOOT_ERROR_THRESHOLD) withinShootErrorFrames++
+            else withinShootErrorFrames = 0
+            if (withinShootErrorFrames > 20) {
                 if (hasStartedShooting) {
                     println("shooting at ${motor.velocity.valueAsDouble} rps")
                     hasStartedShooting = false
@@ -77,6 +91,7 @@ object Shooter: SubsystemBase("Shooter") {
         }.finallyRun {
             Intake.currentState = Intake.State.HOLDING
             motor.setControl(VoltageOut(0.0))
+            reverseFrames = 0
         }
 
     }}

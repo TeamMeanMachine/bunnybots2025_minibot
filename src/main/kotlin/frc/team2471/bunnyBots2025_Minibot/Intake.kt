@@ -113,6 +113,10 @@ object Intake: SubsystemBase("Intake") {
             sidesIntakeMotor.setControl(VoltageOut(-sideIntakingPercentage * 12.0))
             indexerMotor.setControl(VoltageOut(-indexingPercentage * 12.0))
          }
+
+         State.INDEXERREVERSING -> {
+            indexerMotor.setControl(VoltageOut(-indexingPercentage * 12.0))
+         }
       }
    }
 
@@ -121,6 +125,8 @@ object Intake: SubsystemBase("Intake") {
       STAGING,
       HOLDING,
       SHOOTING,
-      REVERSING
+      REVERSING,
+      // Like reversing but only runs indexer
+      INDEXERREVERSING
    }
 }
