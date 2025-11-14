@@ -44,6 +44,9 @@ object Intake: SubsystemBase("Intake") {
    @get:AutoLogOutput(key = "Intake/Current State")
    var currentState = State.HOLDING
 
+   @get:AutoLogOutput(key = "Intake/Is Full")
+   val isFull get() = lowerBeambreak && upperBeambreak
+
    init {
       if (!upperIntakingPercentEntry.exists()) {
          upperIntakingPercentEntry.setDouble(upperIntakingPercentage)

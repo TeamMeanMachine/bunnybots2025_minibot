@@ -25,13 +25,15 @@ object Shooter: SubsystemBase("Shooter") {
     val table = NetworkTableInstance.getDefault().getTable("Shooter")
 
     private val shootingVelocityEntry = table.getEntry("Shooting Velocity")
+    private val fullShootingVelocityEntry = table.getEntry("Full Shooting Velocity")
     private val spittingVelocityEntry = table.getEntry("Spitting Velocity")
 
     const val SHOOT_ERROR_THRESHOLD = 5.0
     var withinShootErrorFrames = 0
     val reverseFrameAmount = 5
 
-    val shootingVelocity get() = shootingVelocityEntry.getDouble(32.0)
+    val shootingVelocity get() = shootingVelocityEntry.getDouble(30.0)
+    val fullShootingVelocity get() = fullShootingVelocityEntry.getDouble(32.0)
     val spittingVelocity get() = spittingVelocityEntry.getDouble(-10.0)
 
     val motor = TalonFX(Falcons.SHOOTER)
@@ -39,6 +41,9 @@ object Shooter: SubsystemBase("Shooter") {
     init {
         if (!shootingVelocityEntry.exists()) {
             shootingVelocityEntry.setDouble(shootingVelocity)
+        }
+        if (!fullShootingVelocityEntry.exists()) {
+            fullShootingVelocityEntry.setDouble(fullShootingVelocity)
         }
         if (!spittingVelocityEntry.exists()) {
             spittingVelocityEntry.setDouble(spittingVelocity)
@@ -70,6 +75,9 @@ object Shooter: SubsystemBase("Shooter") {
         var hasStartedShooting = false
         var reverseFrames = 0
         return runCommand {
+
+            val finalShootingVelocity = if (Intake.isFull) fullShootingVelocity else shootingVelocity
+
             if (reverseFrames < reverseFrameAmount) {
                 Intake.currentState = Intake.State.INDEXERREVERSING
                 reverseFrames++
@@ -77,9 +85,9 @@ object Shooter: SubsystemBase("Shooter") {
                 Intake.currentState = Intake.State.HOLDING
                 reverseFrames++
             }
-            motor.setControl(VelocityVoltage(shootingVelocity))
+            motor.setControl(VelocityVoltage(finalShootingVelocity))
             hasStartedShooting = false
-            if ((shootingVelocity - motor.velocity.valueAsDouble).absoluteValue < SHOOT_ERROR_THRESHOLD) withinShootErrorFrames++
+            if ((finalShootingVelocity - motor.velocity.valueAsDouble).absoluteValue < SHOOT_ERROR_THRESHOLD) withinShootErrorFrames++
             else withinShootErrorFrames = 0
             if (withinShootErrorFrames > 20) {
                 if (hasStartedShooting) {
