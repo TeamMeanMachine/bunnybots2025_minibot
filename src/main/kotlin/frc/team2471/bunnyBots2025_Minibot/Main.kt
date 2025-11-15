@@ -22,6 +22,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 import org.team2471.frc.lib.util.RobotMode
 import org.team2471.frc.lib.control.LoopLogger
 import org.team2471.frc.lib.ctre.loggedTalonFX.MasterMotor
+import org.team2471.frc.lib.units.asDegrees
 import org.team2471.frc.lib.util.robotMode
 import java.net.NetworkInterface
 import kotlin.collections.iterator
@@ -102,6 +103,7 @@ object Robot : LoggedRobot() {
         Logger.start()
         // Call all subsystems, make sure their init's run
         allSubsystems.forEach { println("activating subsystem ${it.name}") }
+        println(FieldManager.goalPose)
 
         GlobalScope.launch {
             while (true) {
