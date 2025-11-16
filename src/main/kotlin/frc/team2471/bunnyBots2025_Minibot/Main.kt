@@ -150,6 +150,8 @@ object Robot : LoggedRobot() {
 
         Intake.indexerMotor.brakeMode()
         Intake.sidesIntakeMotor.brakeMode()
+
+        Drive.updateFunMode()
     }
 
     /** This function is called once when the robot is disabled.  */
