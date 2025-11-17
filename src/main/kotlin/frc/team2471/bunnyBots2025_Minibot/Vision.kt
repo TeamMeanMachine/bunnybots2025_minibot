@@ -9,7 +9,7 @@ import org.team2471.frc.lib.vision.limelight.VisionIOLimelight
 // Single limelight 3g
 object Vision : SubsystemBase() {
     val io: Array<VisionIO> = arrayOf(
-        VisionIOLimelight("limelight-shooter", false, {Drive.heading})
+        VisionIOLimelight("limelight-shooter", false, {Drive.gyroAngle})
     )
     
     val inputs = Array(io.size) { VisionIO.VisionIOInputs() }

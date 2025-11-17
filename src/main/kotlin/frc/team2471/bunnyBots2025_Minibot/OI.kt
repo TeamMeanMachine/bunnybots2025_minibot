@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team2471.frc.lib.control.LoopLogger
 import org.team2471.frc.lib.control.MeanCommandXboxController
 import org.team2471.frc.lib.control.commands.runCommand
+import org.team2471.frc.lib.control.rightBumper
 import org.team2471.frc.lib.math.deadband
 import org.team2471.frc.lib.math.normalize
 
@@ -80,10 +81,12 @@ object OI: SubsystemBase("OI") {
 
         driverController.x().onTrue(runOnce { Intake.currentState = Intake.State.INTAKING })
         driverController.y().whileTrue(spit())
-        driverController.a().whileTrue(Shooter.shoot())
+//        driverController.a().whileTrue(Shooter.rampUp())
         driverController.b().onTrue(runOnce { Intake.currentState = Intake.State.HOLDING })
 
-        driverController.leftBumper().whileTrue(Drive.aimToGoal())
+        driverController.rightBumper().toggleOnTrue(Shooter.rampUp().repeatedly())
+
+        driverController.a().whileTrue(Drive.aimToGoal())
     }
 
     override fun periodic()

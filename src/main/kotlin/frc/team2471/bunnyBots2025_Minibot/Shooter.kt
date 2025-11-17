@@ -5,10 +5,12 @@ import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue
 import edu.wpi.first.networktables.NetworkTableInstance
+import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.team2471.frc.lib.control.commands.finallyRun
+import org.team2471.frc.lib.control.commands.onlyRunWhileTrue
 import org.team2471.frc.lib.control.commands.runCommand
 import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.coastMode
@@ -32,8 +34,8 @@ object Shooter: SubsystemBase("Shooter") {
     var withinShootErrorFrames = 0
     val reverseFrameAmount = 5
 
-    val shootingVelocity get() = shootingVelocityEntry.getDouble(30.0)
-    val fullShootingVelocity get() = fullShootingVelocityEntry.getDouble(32.0)
+    val shootingVelocity get() = shootingVelocityEntry.getDouble(26.0)
+    val fullShootingVelocity get() = fullShootingVelocityEntry.getDouble(29.0)
     val spittingVelocity get() = spittingVelocityEntry.getDouble(-10.0)
 
     val motor = TalonFX(Falcons.SHOOTER)
@@ -71,12 +73,15 @@ object Shooter: SubsystemBase("Shooter") {
         Logger.recordOutput("Shooter Velocity", motor.velocity.valueAsDouble)
     }
 
-    fun shoot(): Command {
-        var hasStartedShooting = false
+    // Ramps up,  rumbles, then waits for the shoot button to be pressed
+    fun rampUp(): Command {
         var reverseFrames = 0
+        var shootFaster: Boolean? = null
         return runCommand {
-
-            val finalShootingVelocity = if (Intake.isFull) fullShootingVelocity else shootingVelocity
+            if (shootFaster == null) {
+                shootFaster = Intake.isFull
+            }
+            val finalShootingVelocity = if (shootFaster == true) fullShootingVelocity else shootingVelocity
 
             if (reverseFrames < reverseFrameAmount) {
                 Intake.currentState = Intake.State.INDEXERREVERSING
@@ -86,20 +91,21 @@ object Shooter: SubsystemBase("Shooter") {
                 reverseFrames++
             }
             motor.setControl(VelocityVoltage(finalShootingVelocity))
-            hasStartedShooting = false
             if ((finalShootingVelocity - motor.velocity.valueAsDouble).absoluteValue < SHOOT_ERROR_THRESHOLD) withinShootErrorFrames++
             else withinShootErrorFrames = 0
             if (withinShootErrorFrames > 20) {
-                if (hasStartedShooting) {
-                    println("shooting at ${motor.velocity.valueAsDouble} rps")
-                    hasStartedShooting = false
-                }
+                OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.5)
+            }
+
+            if (OI.driverController.rightTriggerAxis > 0.95) {
                 Intake.currentState = Intake.State.SHOOTING
             }
         }.finallyRun {
             Intake.currentState = Intake.State.HOLDING
             motor.setControl(VoltageOut(0.0))
             reverseFrames = 0
+            shootFaster = null
+            OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
         }
 
     }}

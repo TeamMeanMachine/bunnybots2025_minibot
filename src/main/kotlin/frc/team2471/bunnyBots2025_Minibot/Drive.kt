@@ -7,16 +7,15 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.AutoLogOutput
+import org.littletonrobotics.junction.Logger
 import org.team2471.frc.lib.control.commands.runCommand
 import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.brakeMode
-import org.team2471.frc.lib.ctre.coastMode
 import org.team2471.frc.lib.ctre.currentLimits
 import org.team2471.frc.lib.ctre.inverted
 import org.team2471.frc.lib.ctre.modifyConfiguration
@@ -29,8 +28,8 @@ import org.team2471.frc.lib.units.asRotation2d
 import org.team2471.frc.lib.units.degrees
 import org.team2471.frc.lib.units.inches
 import org.team2471.frc.lib.units.unWrap
-import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.pow
 
 object Drive: SubsystemBase("Drive") {
     val table = NetworkTableInstance.getDefault().getTable("Drive")
@@ -49,7 +48,9 @@ object Drive: SubsystemBase("Drive") {
 
     private val navx = AHRS(AHRS.NavXComType.kMXP_SPI)
     @get:AutoLogOutput(key = "Drive/Heading")
-    val heading get() = navx.angle.degrees
+    val gyroAngle get() = -navx.angle.degrees
+
+    val heading get() = pose.rotation.measure
 
     @get:AutoLogOutput(key = "Drive/Pose")
     var pose = Pose2d()
@@ -70,8 +71,8 @@ object Drive: SubsystemBase("Drive") {
         }
 
         leftMotor.applyConfiguration {
-            currentLimits(30.0, 40.0, 1.0)
-            statorCurrentLimit(30.0)
+            currentLimits(45.0, 50.0, 1.0)
+//            statorCurrentLimit(45.0)
             inverted(true)
             brakeMode()
             this.OpenLoopRamps.apply {
@@ -81,8 +82,8 @@ object Drive: SubsystemBase("Drive") {
         }
 
         rightMotor.applyConfiguration {
-            currentLimits(30.0, 40.0, 1.0)
-            statorCurrentLimit(30.0)
+            currentLimits(45.0, 50.0, 1.0)
+//            statorCurrentLimit(45.0)
             inverted(false)
             brakeMode()
             this.OpenLoopRamps.apply {
@@ -132,18 +133,16 @@ object Drive: SubsystemBase("Drive") {
     }
 
     fun joystickDrive(turnOverride: Double? = null) {
-        val forwardStick = -OI.driverController.leftY.deadband(0.1)
-        val steerStick = -OI.driverController.rightX.deadband(0.1)
+            val forwardStick = -OI.driverController.leftY.deadband(0.1)
+            val steerStick = OI.driverController.rightX.deadband(0.1).pow(3)
 
-        if (turnOverride == null) {
-            val wheelSpeeds = kinematics.toWheelSpeeds(ChassisSpeeds(forwardStick * MAX_WHEEL_VELOCITY, 0.0, steerStick * MAX_YAW_VELOCITY))
+            val turn = turnOverride ?: if (abs(forwardStick) > 0.1) abs(forwardStick) * steerStick else steerStick
 
-            leftMotor.setVoltage(wheelSpeeds.leftMetersPerSecond / MAX_WHEEL_VELOCITY * 12.0)
-            rightMotor.setVoltage(wheelSpeeds.rightMetersPerSecond / MAX_WHEEL_VELOCITY * 12.0)
-        } else {
-            leftMotor.setVoltage((forwardStick + turnOverride) * 12.0)
-            rightMotor.setVoltage((forwardStick - turnOverride) * 12.0)
-        }
+            val leftPower = forwardStick + turn
+            val rightPower = forwardStick - turn
+
+            leftMotor.setVoltage(leftPower * 12.0)
+            rightMotor.setVoltage(rightPower * 12.0)
     }
 
     fun updateOdometry() {
@@ -151,16 +150,20 @@ object Drive: SubsystemBase("Drive") {
         val distanceLeft = leftMotor.position.value.asRadians * wheelRadius.asMeters / 5.8
         distLeft = distanceLeft
         distRight = distanceRight
-        pose = poseEstimator.update(heading.asRotation2d, distanceLeft, distanceRight)
+        pose = poseEstimator.update(gyroAngle.asRotation2d, distanceLeft, distanceRight)
     }
 
     fun aimToGoal(): Command {
         return runCommand(Drive) {
             val relativePose = FieldManager.goalPose - pose.translation
 
-            val angleError = relativePose.angle.measure.unWrap(heading).asDegrees - heading.asDegrees
+            val angleError = relativePose.angle.measure.asDegrees - heading.asDegrees
 
-            val power = if (abs(angleError) > 1.0) aimPIDControler.calculate(heading.asDegrees, relativePose.angle.measure.unWrap(heading).asDegrees) else 0.0
+            Logger.recordOutput("goalPose", FieldManager.goalPose)
+            Logger.recordOutput("goalHeading", relativePose.angle.measure.asDegrees)
+            Logger.recordOutput("angleError", angleError)
+
+            val power = if (abs(angleError) > 1.0) -aimPIDControler.calculate(heading.asDegrees, relativePose.angle.measure.asDegrees) else 0.0
 
             joystickDrive(power)
         }.withName("Aim To Goal")

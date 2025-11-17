@@ -84,19 +84,16 @@ object Intake: SubsystemBase("Intake") {
    override fun periodic() {
       when (currentState) {
          State.INTAKING -> {
-         //switch to staging when it sees a piece
-            if (lowerBeambreak) currentState = State.STAGING
+            if (upperBeambreak && lowerBeambreak) currentState = State.HOLDING
+
+            if (upperBeambreak) {
+               indexerMotor.setControl(VoltageOut(0.0))
+            } else {
+               indexerMotor.setControl(VoltageOut(indexingPercentage * 12.0))
+            }
 
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, upperIntakingPercentage)
             sidesIntakeMotor.setControl(VoltageOut(sideIntakingPercentage * 12.0))
-         }
-
-         State.STAGING -> {
-            //switched to holding when the carrot passes beambreak sensor
-            if (!lowerBeambreak || upperBeambreak) currentState = State.HOLDING
-            upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, upperIntakingPercentage)
-            sidesIntakeMotor.setControl(VoltageOut(sideIntakingPercentage * 12.0))
-            indexerMotor.setControl(VoltageOut(indexingPercentage * 12.0))
          }
 
          State.HOLDING -> {
@@ -125,7 +122,6 @@ object Intake: SubsystemBase("Intake") {
 
    enum class State {
       INTAKING,
-      STAGING,
       HOLDING,
       SHOOTING,
       REVERSING,
