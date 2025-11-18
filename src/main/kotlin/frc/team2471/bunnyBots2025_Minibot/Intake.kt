@@ -7,6 +7,7 @@ import edu.wpi.first.math.filter.Debouncer
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DigitalInput
+import edu.wpi.first.wpilibj.GenericHID
 import org.littletonrobotics.junction.AutoLogOutput
 import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.coastMode
@@ -43,6 +44,12 @@ object Intake: SubsystemBase("Intake") {
 
    @get:AutoLogOutput(key = "Intake/Current State")
    var currentState = State.HOLDING
+       set(value) {
+         if (value == State.HOLDING) {
+            OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
+         }
+         field = value
+      }
 
    @get:AutoLogOutput(key = "Intake/Is Full")
    val isFull get() = lowerBeambreak && upperBeambreak
@@ -84,6 +91,9 @@ object Intake: SubsystemBase("Intake") {
    override fun periodic() {
       when (currentState) {
          State.INTAKING -> {
+
+            OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)
+
             if (upperBeambreak && lowerBeambreak) currentState = State.HOLDING
 
             if (upperBeambreak) {

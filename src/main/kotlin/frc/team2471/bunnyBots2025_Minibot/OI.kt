@@ -87,6 +87,9 @@ object OI: SubsystemBase("OI") {
         driverController.rightBumper().toggleOnTrue(Shooter.rampUp().repeatedly())
 
         driverController.a().whileTrue(Drive.aimToGoal())
+
+        driverController.povUp().onTrue(runOnce { Shooter.shootingVelocity += 0.5})
+        driverController.povDown().onTrue(runOnce { Shooter.shootingVelocity -= 0.5})
     }
 
     override fun periodic()
