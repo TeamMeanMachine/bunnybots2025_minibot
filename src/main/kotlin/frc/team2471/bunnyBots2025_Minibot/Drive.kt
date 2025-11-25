@@ -63,7 +63,7 @@ object Drive: SubsystemBase("Drive") {
     val kinematics = DifferentialDriveKinematics(17.0.inches)
     val poseEstimator = DifferentialDrivePoseEstimator(kinematics, Rotation2d(), 0.0, 0.0, Pose2d(), VecBuilder.fill(0.5, 0.5, 0.5), VecBuilder.fill(0.01, 0.01, 0.01))
 
-    val aimPIDControler = PIDController(0.0075, 0.0, 0.0)
+    val aimPIDControler = PIDController(0.005, 0.0, 0.0)
 
     init {
         if (!funModeEntry.exists()) {
@@ -157,13 +157,13 @@ object Drive: SubsystemBase("Drive") {
         return runCommand(Drive) {
             val relativePose = FieldManager.goalPose - pose.translation
 
-            val angleError = relativePose.angle.measure.asDegrees - heading.asDegrees
+            val angleError = relativePose.angle.measure.asDegrees - heading.unWrap(relativePose.angle.measure).asDegrees
 
             Logger.recordOutput("goalPose", FieldManager.goalPose)
             Logger.recordOutput("goalHeading", relativePose.angle.measure.asDegrees)
             Logger.recordOutput("angleError", angleError)
 
-            val power = if (abs(angleError) > 1.0) -aimPIDControler.calculate(heading.asDegrees, relativePose.angle.measure.asDegrees) else 0.0
+            val power = if (abs(angleError) > 1.0) -aimPIDControler.calculate(heading.asDegrees, relativePose.angle.measure.unWrap(heading).asDegrees) else 0.0
 
             joystickDrive(power)
         }.withName("Aim To Goal")
