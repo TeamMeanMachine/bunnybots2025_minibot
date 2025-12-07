@@ -71,23 +71,23 @@ object Drive: SubsystemBase("Drive") {
         }
 
         leftMotor.applyConfiguration {
-            currentLimits(45.0, 50.0, 1.0)
+            currentLimits(30.0, 40.0, 1.0)
 //            statorCurrentLimit(45.0)
             inverted(true)
             brakeMode()
             this.OpenLoopRamps.apply {
-                DutyCycleOpenLoopRampPeriod = 1.0
+                DutyCycleOpenLoopRampPeriod = 2.0
             }
 
         }
 
         rightMotor.applyConfiguration {
-            currentLimits(45.0, 50.0, 1.0)
+            currentLimits(30.0, 40.0, 1.0)
 //            statorCurrentLimit(45.0)
             inverted(false)
             brakeMode()
             this.OpenLoopRamps.apply {
-                DutyCycleOpenLoopRampPeriod = 1.0
+                DutyCycleOpenLoopRampPeriod = 2.0
             }
         }
     }
@@ -133,7 +133,7 @@ object Drive: SubsystemBase("Drive") {
     }
 
     fun joystickDrive(turnOverride: Double? = null) {
-            val forwardStick = -OI.driverController.leftY.deadband(0.1)
+            val forwardStick = -OI.driverController.leftY.deadband(0.1) * 0.8
             val steerStick = OI.driverController.rightX.deadband(0.1).pow(3)
 
             val turn = turnOverride ?: if (abs(forwardStick) > 0.1) abs(forwardStick) * steerStick else steerStick

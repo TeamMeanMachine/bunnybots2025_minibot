@@ -17,7 +17,8 @@ object Falcons {
     const val LEFT_DRIVE = 19
     const val RIGHT_DRIVE = 24
     const val SHOOTER = 31
-    const val INTAKE_SIDES = 13
+    const val INTAKE_RIGHT = 13
+    const val INTAKE_LEFT = 15
 }
 
 object Talons {

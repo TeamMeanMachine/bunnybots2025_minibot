@@ -149,7 +149,8 @@ object Robot : LoggedRobot() {
         Vision.onEnable()
 
         Intake.indexerMotor.brakeMode()
-        Intake.sidesIntakeMotor.brakeMode()
+//        Intake.leftIntakeMotor.brakeMode()
+//        Intake.rightIntakeMotor.brakeMode()
 
         Drive.updateFunMode()
     }
@@ -159,7 +160,8 @@ object Robot : LoggedRobot() {
 //        Drive.coastMode()
         Vision.onDisable()
         Intake.indexerMotor.coastMode()
-        Intake.sidesIntakeMotor.coastMode()
+        Intake.rightIntakeMotor.coastMode()
+        Intake.leftIntakeMotor.coastMode()
     }
 
     /** This function is called periodically when disabled.  */

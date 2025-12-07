@@ -2,6 +2,7 @@ package frc.team2471.bunnyBots2025_Minibot
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode
 import com.ctre.phoenix.motorcontrol.can.TalonSRX
+import com.ctre.phoenix6.controls.DutyCycleOut
 import com.ctre.phoenix6.controls.VoltageOut
 import edu.wpi.first.math.filter.Debouncer
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -24,7 +25,8 @@ object Intake: SubsystemBase("Intake") {
    private val indexerMotorShootingPercentEntry = table.getEntry("Index Motor Shooting Percentage")
 
    val upperIntakeMotor = TalonSRX(Talons.INTAKE_TOP)
-   val sidesIntakeMotor = LoggedTalonFX(Falcons.INTAKE_SIDES)
+   val leftIntakeMotor = LoggedTalonFX(Falcons.INTAKE_LEFT)
+   val rightIntakeMotor = LoggedTalonFX(Falcons.INTAKE_RIGHT)
    val indexerMotor = LoggedTalonFX(Talons.UPTAKE)
 
    val lowerBeambreakSensor = DigitalInput(DigitalSensors.LOWER_BEAMBREAK)
@@ -54,6 +56,9 @@ object Intake: SubsystemBase("Intake") {
    @get:AutoLogOutput(key = "Intake/Is Full")
    val isFull get() = lowerBeambreak && upperBeambreak
 
+   val alternateFrames: Int = 6
+   var alternateCenteringMotors = 0
+
    init {
       if (!upperIntakingPercentEntry.exists()) {
          upperIntakingPercentEntry.setDouble(upperIntakingPercentage)
@@ -74,14 +79,20 @@ object Intake: SubsystemBase("Intake") {
       upperIntakeMotor.configPeakCurrentLimit(40)
       upperIntakeMotor.configPeakCurrentDuration(1000)
 
-      sidesIntakeMotor.applyConfiguration {
+      leftIntakeMotor.applyConfiguration {
          currentLimits(30.0, 40.0, 1.0)
+         inverted(true)
+         coastMode()
+      }
+
+      rightIntakeMotor.applyConfiguration {
+         currentLimits(20.0, 25.0, 1.0)
          inverted(false)
          coastMode()
       }
 
       indexerMotor.applyConfiguration {
-         currentLimits(30.0, 40.0, 1.0)
+         currentLimits(20.0, 25.0, 1.0)
          inverted(true)
          coastMode()
       }
@@ -103,24 +114,26 @@ object Intake: SubsystemBase("Intake") {
             }
 
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, upperIntakingPercentage)
-            sidesIntakeMotor.setControl(VoltageOut(sideIntakingPercentage * 12.0))
+            alternateLogic()
          }
 
          State.HOLDING -> {
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, 0.0)
-            sidesIntakeMotor.setControl(VoltageOut(0.0))
+            leftIntakeMotor.setControl(VoltageOut(0.0))
+            rightIntakeMotor.setControl(VoltageOut(0.0))
             indexerMotor.setControl(VoltageOut(0.0))
          }
 
          State.SHOOTING -> {
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, upperIntakingPercentage)
-            sidesIntakeMotor.setControl(VoltageOut(sideIntakingPercentage * 12.0))
+            alternateLogic()
             indexerMotor.setControl(VoltageOut(indexerMotorShootingPercentage * 12.0))
          }
 
          State.REVERSING -> {
             upperIntakeMotor.set(TalonSRXControlMode.PercentOutput, -upperIntakingPercentage)
-            sidesIntakeMotor.setControl(VoltageOut(-sideIntakingPercentage * 12.0))
+            leftIntakeMotor.setControl(VoltageOut(-sideIntakingPercentage * 12.0))
+            rightIntakeMotor.setControl(VoltageOut(-sideIntakingPercentage * 12.0))
             indexerMotor.setControl(VoltageOut(-indexingPercentage * 12.0))
          }
 
@@ -128,6 +141,17 @@ object Intake: SubsystemBase("Intake") {
             indexerMotor.setControl(VoltageOut(-indexingPercentage * 12.0))
          }
       }
+   }
+
+   fun alternateLogic() {
+      if (alternateCenteringMotors % alternateFrames < (alternateFrames / 2)) {
+         leftIntakeMotor.setControl(DutyCycleOut(sideIntakingPercentage))
+         rightIntakeMotor.setControl(DutyCycleOut(0.0))
+      } else {
+         leftIntakeMotor.setControl(DutyCycleOut(0.0))
+         rightIntakeMotor.setControl(DutyCycleOut(sideIntakingPercentage))
+      }
+      alternateCenteringMotors++
    }
 
    enum class State {

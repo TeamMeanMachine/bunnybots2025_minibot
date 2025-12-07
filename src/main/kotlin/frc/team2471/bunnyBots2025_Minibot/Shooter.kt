@@ -33,7 +33,7 @@ object Shooter: SubsystemBase("Shooter") {
     var withinShootErrorFrames = 0
     val reverseFrameAmount = 5
 
-    var shootingVelocity get() = shootingVelocityEntry.getDouble(26.0)
+    var shootingVelocity get() = shootingVelocityEntry.getDouble(28.5)
         set(value) {shootingVelocityEntry.setDouble(value)}
     val spittingVelocity get() = spittingVelocityEntry.getDouble(-10.0)
 
@@ -46,6 +46,8 @@ object Shooter: SubsystemBase("Shooter") {
         if (!shootingVelocityEntry.exists()) {
             shootingVelocityEntry.setDouble(shootingVelocity)
         }
+        spittingVelocityEntry.setPersistent()
+        shootingVelocityEntry.setPersistent()
 
         motor.applyConfiguration {
             currentLimits(30.0, 40.0, 1.0)

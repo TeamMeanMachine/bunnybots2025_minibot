@@ -36,7 +36,7 @@ object Vision : SubsystemBase() {
 
         if (fiducials.isEmpty()) {
 //            println("No fiducials found")
-            io.updateCropping(-1.0, 1.0, -1.0, 1.0)
+//            io.updateCropping(-1.0, 1.0, -1.0, 1.0)
             return
         }
 
@@ -69,7 +69,7 @@ object Vision : SubsystemBase() {
 
         Logger.recordOutput("Crop", Translation2d(-1.0, minY), Translation2d(1.0, minY), Translation2d(-1.0, maxY), Translation2d(1.0, maxY))
 
-        io.updateCropping(-1.0, 1.0, minY, maxY)
+//        io.updateCropping(-1.0, 1.0, minY, maxY)
 
     }
 
