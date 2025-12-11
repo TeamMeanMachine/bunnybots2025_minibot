@@ -10,6 +10,7 @@ import org.team2471.frc.lib.control.commands.runCommand
 import org.team2471.frc.lib.control.rightBumper
 import org.team2471.frc.lib.math.deadband
 import org.team2471.frc.lib.math.normalize
+import org.team2471.frc.lib.control.commands.finallyRun
 
 object OI: SubsystemBase("OI") {
     val driverController = MeanCommandXboxController(0, false)
@@ -78,11 +79,18 @@ object OI: SubsystemBase("OI") {
         println("inside OI init")
         // Default command, normal field-relative drive
         Drive.defaultCommand = runCommand(Drive){ Drive.joystickDrive() }
+        Shooter.defaultCommand = Shooter.rampUp()
 
         driverController.x().onTrue(runOnce { Intake.currentState = Intake.State.INTAKING })
         driverController.y().whileTrue(spit())
 //        driverController.a().whileTrue(Shooter.rampUp())
         driverController.b().onTrue(runOnce { Intake.currentState = Intake.State.HOLDING })
+
+        driverController.rightTrigger(0.95).whileTrue( runCommand {
+            Intake.currentState = Intake.State.SHOOTING
+        }.finallyRun {
+            Intake.currentState = Intake.State.HOLDING
+        })
 
         driverController.rightBumper().toggleOnTrue(Shooter.rampUp().repeatedly())
 

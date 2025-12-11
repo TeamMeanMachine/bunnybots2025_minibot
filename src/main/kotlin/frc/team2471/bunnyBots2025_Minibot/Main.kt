@@ -2,6 +2,7 @@
 package frc.team2471.bunnyBots2025_Minibot
 
 import com.ctre.phoenix6.SignalLogger
+import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
@@ -75,6 +76,8 @@ object Robot : LoggedRobot() {
     init {
         // Tells FRC we use Kotlin
         HAL.report(tResourceType.kResourceType_Language, tInstances.kLanguage_Kotlin)
+
+//        CameraServer.startAutomaticCapture()
 
         // Set up data receivers & replay source
         when (robotMode) {

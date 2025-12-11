@@ -33,7 +33,7 @@ object Shooter: SubsystemBase("Shooter") {
     var withinShootErrorFrames = 0
     val reverseFrameAmount = 5
 
-    var shootingVelocity get() = shootingVelocityEntry.getDouble(28.5)
+    var shootingVelocity get() = shootingVelocityEntry.getDouble(26.0)
         set(value) {shootingVelocityEntry.setDouble(value)}
     val spittingVelocity get() = spittingVelocityEntry.getDouble(-10.0)
 
@@ -46,8 +46,6 @@ object Shooter: SubsystemBase("Shooter") {
         if (!shootingVelocityEntry.exists()) {
             shootingVelocityEntry.setDouble(shootingVelocity)
         }
-        spittingVelocityEntry.setPersistent()
-        shootingVelocityEntry.setPersistent()
 
         motor.applyConfiguration {
             currentLimits(30.0, 40.0, 1.0)
@@ -74,7 +72,7 @@ object Shooter: SubsystemBase("Shooter") {
     // Ramps up,  rumbles, then waits for the shoot button to be pressed
     fun rampUp(): Command {
         var reverseFrames = 0
-        return runCommand {
+        return runCommand(this) {
 
             if (reverseFrames < reverseFrameAmount) {
                 Intake.currentState = Intake.State.INDEXERREVERSING
@@ -83,19 +81,18 @@ object Shooter: SubsystemBase("Shooter") {
                 Intake.currentState = Intake.State.HOLDING
                 reverseFrames++
             }
+
             motor.setControl(VelocityVoltage(shootingVelocity))
             if ((shootingVelocity - motor.velocity.valueAsDouble).absoluteValue < SHOOT_ERROR_THRESHOLD) withinShootErrorFrames++
             else withinShootErrorFrames = 0
             if (withinShootErrorFrames > 20) {
-                OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.5)
+//                OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.5)
             }
 
-            if (OI.driverController.rightTriggerAxis > 0.95) {
-                Intake.currentState = Intake.State.SHOOTING
-            }
+
         }.finallyRun {
             Intake.currentState = Intake.State.HOLDING
-            motor.setControl(VoltageOut(0.0))
+//            motor.setControl(VoltageOut(0.0))
             reverseFrames = 0
             OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
         }
