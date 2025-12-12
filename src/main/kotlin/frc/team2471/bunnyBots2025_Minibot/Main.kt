@@ -77,7 +77,7 @@ object Robot : LoggedRobot() {
         // Tells FRC we use Kotlin
         HAL.report(tResourceType.kResourceType_Language, tInstances.kLanguage_Kotlin)
 
-//        CameraServer.startAutomaticCapture()
+        CameraServer.startAutomaticCapture()
 
         // Set up data receivers & replay source
         when (robotMode) {

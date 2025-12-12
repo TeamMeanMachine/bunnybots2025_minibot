@@ -75,8 +75,8 @@ object Intake: SubsystemBase("Intake") {
 
 
 
-      upperIntakeMotor.configContinuousCurrentLimit(30)
-      upperIntakeMotor.configPeakCurrentLimit(40)
+      upperIntakeMotor.configContinuousCurrentLimit(20)
+      upperIntakeMotor.configPeakCurrentLimit(30)
       upperIntakeMotor.configPeakCurrentDuration(1000)
 
       leftIntakeMotor.applyConfiguration {
