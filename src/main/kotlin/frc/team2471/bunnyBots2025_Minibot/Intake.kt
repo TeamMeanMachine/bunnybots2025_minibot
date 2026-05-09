@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.GenericHID
 import org.littletonrobotics.junction.AutoLogOutput
+import org.littletonrobotics.junction.Logger
 import org.team2471.frc.lib.ctre.applyConfiguration
 import org.team2471.frc.lib.ctre.coastMode
 import org.team2471.frc.lib.ctre.currentLimits
@@ -56,7 +57,7 @@ object Intake: SubsystemBase("Intake") {
    @get:AutoLogOutput(key = "Intake/Is Full")
    val isFull get() = lowerBeambreak && upperBeambreak
 
-   val alternateFrames: Int = 6
+   val alternateFrames: Int = 20
    var alternateCenteringMotors = 0
 
    init {
@@ -147,11 +148,14 @@ object Intake: SubsystemBase("Intake") {
       if (alternateCenteringMotors % alternateFrames < (alternateFrames / 2)) {
          leftIntakeMotor.setControl(DutyCycleOut(sideIntakingPercentage))
          rightIntakeMotor.setControl(DutyCycleOut(0.0))
+         Logger.recordOutput("Intake/Alternate", 0)
       } else {
          leftIntakeMotor.setControl(DutyCycleOut(0.0))
          rightIntakeMotor.setControl(DutyCycleOut(sideIntakingPercentage))
+         Logger.recordOutput("Intake/Alternate", 1)
       }
       alternateCenteringMotors++
+      Logger.recordOutput("Intake/Alternate #", alternateCenteringMotors)
    }
 
    enum class State {
