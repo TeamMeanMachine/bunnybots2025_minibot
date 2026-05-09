@@ -95,6 +95,7 @@ object Shooter: SubsystemBase("Shooter") {
 //            motor.setControl(VoltageOut(0.0))
             reverseFrames = 0
             OI.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)
+            motor.setControl(VelocityVoltage(0.0))
         }
 
     }}

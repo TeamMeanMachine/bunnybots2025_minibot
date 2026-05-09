@@ -79,7 +79,7 @@ object OI: SubsystemBase("OI") {
         println("inside OI init")
         // Default command, normal field-relative drive
         Drive.defaultCommand = runCommand(Drive){ Drive.joystickDrive() }
-        Shooter.defaultCommand = Shooter.rampUp()
+//        Shooter.defaultCommand = Shooter.rampUp()
 
         driverController.x().onTrue(runOnce { Intake.currentState = Intake.State.INTAKING })
         driverController.y().whileTrue(spit())
@@ -92,7 +92,7 @@ object OI: SubsystemBase("OI") {
             Intake.currentState = Intake.State.HOLDING
         })
 
-        driverController.rightBumper().toggleOnTrue(Shooter.rampUp().repeatedly())
+        driverController.rightBumper().toggleOnTrue(Shooter.rampUp())
 
         driverController.a().whileTrue(Drive.aimToGoal())
 
